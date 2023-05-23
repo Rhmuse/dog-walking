@@ -1,4 +1,4 @@
-import { getWalkers } from "./database.js"
+import { getCities, getWalkers, getWalkerCities } from "./database.js"
 
 document.addEventListener(
     "click",  // This is the type of event
@@ -13,7 +13,6 @@ document.addEventListener(
             Only run the rest of the logic if a walker <li> was clicked
         */
         if (itemClicked.id.startsWith("walker")) {
-
             /*
                 Extract the primary key from the id attribute of the list
                 item that you clicked on. Refer back to the code you
@@ -42,8 +41,10 @@ document.addEventListener(
                 you have. As soon as you find the right one, display
                 the window alert message.
                 */
+                const walkerCities = walkerCitiesByWalker(walker);
+                const citiesString = citiesByWalkerCity(walkerCities);
                 if (walker.id === parseInt(walkerId)) {
-                    window.alert(`${walker.name} services ${walker.city}`)
+                    window.alert(`${walker.name} services ${citiesString}`)
                 }
             }
         }
@@ -66,3 +67,27 @@ export const Walkers = () => {
     return walkerHTML;
 }
 
+const walkerCitiesByWalker = (walker) => {
+    const walkerCities = getWalkerCities();
+    let foundWalkerCities = []
+
+    for (const walkerCity of walkerCities) {
+        if (walker.id === walkerCity.walkerId) {
+            foundWalkerCities.push(walkerCity);
+        }
+    }
+    return foundWalkerCities;
+}
+
+const citiesByWalkerCity = (walkerCities) => {
+    const cities = getCities();
+    let citiesString = ""
+
+    for (const city of cities) {
+        for (const walkerCity of walkerCities) {
+            if (walkerCity.cityId === city.id) citiesString += city.name + " ";
+        }
+    }
+
+    return citiesString;
+}
